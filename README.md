@@ -1,93 +1,240 @@
-# APRIL
+# OpenAI MergeRequest Reviewer Gitlab
 
+## Overview
 
+This [OpenAI ChatGPT-based](https://platform.openai.com/docs/guides/chat) GitLab
+Pipeline Application provides a summary, release notes and review of pull
+requests. The unique features of this action are:
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.riskaware.co.uk/o_raymond/april.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.riskaware.co.uk/o_raymond/april/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+- **Line-by-line code change suggestions**: This Application reviews the changes
+  line by line and provides code change suggestions that can be directly
+  committed from the GitLab UI.
+- **Continuous, incremental reviews**: Reviews are performed on each commit within a
+  pull request, rather than a one-time review on the entire pull request.
+- **Cost-effective and reduced noise**: Incremental reviews save on OpenAI costs and
+  reduce noise by tracking changed files between commits and the base of the
+  pull request.
+- **"Light" model for summary**: Designed to be used with a "light" summarization
+  model (e.g. `gpt-3.5-turbo`) and a "heavy" review model (e.g. `gpt-4`). For
+  best results, use `gpt-4` as the "heavy" model, as thorough code review needs
+  strong reasoning abilities.
+- **[Not support yet]** Chat with bot: Supports conversation with the bot in the
+  context of lines of code or entire files, useful for providing context,
+  generating test cases, and reducing code complexity.
+- **Smart review skipping**: By default, skips in-depth review for simple changes
+  (e.g. typo fixes) and when changes look good for the most part. It can be
+  disabled by setting `review_simple_changes` and `review_comment_lgtm` to
+  `true`.
+- **Customizable prompts**: Tailor the `system_message`, `summarize`, and
+  `summarize_release_notes` prompts to focus on specific aspects of the review
+  process or even change the review objective.
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+To use the reviewer, you need to follow these two steps:
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+1. Prepare a key to chat with the OpenAI bot and a key to post a discussion.
+1. Set up GitLab Runner and GitLab Runner pipeline.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+## Steps
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+1. Generate `AccessToken` for your Group or Project You can set a Developer Role
+   and only provide **`api`** Scopes for it
+   ![Generate AccessToken](./docs/images/gitlab/gitlab-access-token.png)
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+2. Get API Key from [OpenAI](https://platform.openai.com/account/api-keys)
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+3. Fill `AccessToken` as `GITLAB_PERSONAL_TOKEN` and `OPENAI_API_KEY` in GitLab
+   CI/CD Variables Settings for your Group or Project When adding these two
+   variables, please ensure the security of the key by checking the "**mask
+   variable**" option.
+   ![Fill Variables](./docs/images/gitlab/gitlab-variables.png)
 
-## License
-For open source projects, say how it is licensed.
+4. Register or Enable a GitLab Runner for the pipeline, You can add a new Group
+   Runner or use the existing Runner.
+   ![Enable GitLab Runner](./docs/images/gitlab/gitlab-runner.png)
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+5. Create a .gitlab-ci.yml file and fill in the content in your repository root
+   directory, Then, create merge request and have fun! 🎉
+
+## .gitlab-ci.yml
+
+```yml
+default:
+  image: node:20
+
+variables:
+  GITLAB_HOST:
+    value: 'https://www.gitlab.com'
+  GITHUB_EVENT_NAME:
+    value: 'pull_request'
+  debug:
+    description: 'Enable debug mode'
+    value: 'false'
+  max_files:
+    description:
+      'Max files to summarize and review. Less than or equal to 0 means no
+      limit.'
+    value: '150'
+  review_simple_changes:
+    description: 'Review even when the changes are simple'
+    value: 'false'
+  review_comment_lgtm:
+    description: 'Leave comments even if the patch is LGTM'
+    value: 'false'
+  path_filters:
+    description: |
+      The path filters, e.g., "src/**.py", "!dist/**", each line will be considered as one pattern.
+      See also
+      - https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onpushpull_requestpull_request_targetpathspaths-ignore
+      - https://github.com/isaacs/minimatch
+    value: |
+      !.gitlab-ci.yml
+      !dist/**
+      !**/*.pb.go
+      !**/*.lock
+      !**/*.yaml
+      !**/*.yml
+      !**/*.cfg
+      !**/*.toml
+      !**/*.ini
+      !**/*.mod
+      !**/*.sum
+      !**/*.work
+      !**/*.json
+      !**/*.mmd
+      !**/*.svg
+      !**/*.png
+      !**/*.dot
+      !**/*.md5sum
+      !**/*.wasm
+      !**/gen/**
+      !**/_gen/**
+      !**/generated/**
+      !**/vendor/**
+  disable_review:
+    description: 'Only provide the summary and skip the code review.'
+    value: 'false'
+  disable_release_notes:
+    description: 'Disable release notes'
+    value: 'false'
+  openai_base_url:
+    description: 'The url of the openai api interface.'
+    value: 'https://api.openai.com/v1'
+  openai_light_model:
+    description:
+      'Model to use for simple tasks like summarizing diff on a file.'
+    value: 'gpt-3.5-turbo'
+  openai_heavy_model:
+    description: 'Model to use for complex tasks such as code reviews.'
+    value: 'gpt-3.5-turbo'
+  openai_model_temperature:
+    description: 'Temperature for GPT model'
+    value: '0.0'
+  openai_retries:
+    description:
+      'How many times to retry OpenAI API in case of timeouts or errors?'
+    value: '5'
+  openai_timeout_ms:
+    description: 'Timeout for OpenAI API call in millis'
+    value: '360000'
+  openai_concurrency_limit:
+    description: 'How many concurrent API calls to make to OpenAI servers?'
+    value: '4'
+  system_message:
+    description: 'System message to be sent to OpenAI'
+    value: |
+      You are `@openai` (aka `github-actions[bot]`), a language model 
+      trained by OpenAI. Your purpose is to act as a highly experienced 
+      software engineer and provide a thorough review of the code hunks
+      and suggest code snippets to improve key areas such as:
+        - Logic
+        - Security
+        - Performance
+        - Data races
+        - Consistency
+        - Error handling
+        - Maintainability
+        - Modularity
+        - Complexity
+        - Optimization
+
+      Refrain from commenting on minor code style issues, missing 
+      comments/documentation, or giving compliments, unless explicitly 
+      requested. Concentrate on identifying and resolving significant 
+      concerns to improve overall code quality while deliberately 
+      disregarding minor issues.
+
+      Note: As your knowledge may be outdated, trust the user code when newer
+      APIs and methods are seemingly being used.
+  summarize:
+    description: 'The prompt for final summarization response'
+    value: |
+      Provide your final response in the `markdown` format with 
+      the following content:
+        - High-level summary (comment on the overall change instead of 
+          specific files within 80 words)
+        - Table of files and their summaries. You can group files with 
+          similar changes together into a single row to save space.
+
+      Avoid additional commentary as this summary will be added as a 
+      comment on the GitHub pull request.
+  summarize_release_notes:
+    description:
+      'The prompt for generating release notes in the same chat as summarize
+      stage'
+    value: |
+      Create concise release notes in `markdown` format for this pull request, 
+      focusing on its purpose and user story. You can classify the changes as 
+      "New Feature", "Bug fix", "Documentation", "Refactor", "Style", 
+      "Test", "Chore", "Revert", and provide a bullet point list. For example: 
+      "New Feature: An integrations page was added to the UI". Keep your 
+      response within 50-100 words. Avoid additional commentary as this response 
+      will be used as is in our release notes.
+
+      Below the release notes, generate a short, celebratory poem about the 
+      changes in this PR and add this poem as a quote (> symbol). You can 
+      use emojis in the poem, where they are relevant.
+
+stages:
+  - review
+
+review-job: # This job runs in the review stage, which runs first.
+  stage: review
+  script:
+    - curl -o dist.tar.gz https://github.com/maybeLab/openai-mr-reviewer-gltlab/releases/download/v1.0.0/dist.tar.gz && tar -vxzf dist.tar.gz && node dist/index.cjs
+    - echo "review complete."
+    - rm -rf ./dist ./dist.tar.gz
+  only:
+    - merge_requests
+```
+
+## Screenshots
+
+![Release Notes](./docs/images/gitlab/gitlab-release-notes.png)
+
+![Summary](./docs/images/gitlab/gitlab-summary.png)
+
+![Conversation](./docs/images/gitlab/gitlab-conversation.png)
+
+## Variables
+
+| Name                     | Description                                                                                    | Default                     |
+| ------------------------ | ---------------------------------------------------------------------------------------------- | --------------------------- |
+| debug                    | Enable debug mode                                                                              | false                       |
+| max_files                | Maximum number of files to summarize and review. Enter less than or equal to 0 for no limit    | 150                         |
+| review_simple_changes    | Whether to review even when the changes are simple                                             | false                       |
+| review_comment_lgtm      | Whether to leave comments even if the patch is LGTM                                            | false                       |
+| path_filters             | Path filters to apply, e.g., "src/.py", "!dist/", each line will be considered as one pattern. | -see in template            |
+| disable_review           | Whether to only provide the summary and skip the code review                                   | false                       |
+| disable_release_notes    | Whether to disable release notes                                                               | false                       |
+| openai_base_url          | The URL of the OpenAI API interface                                                            | `https://api.openai.com/v1` |
+| openai_light_model       | The Model to use for simple tasks like summarizing diff on a file                              | gpt-3.5-turbo               |
+| openai_heavy_model       | The Model to use for complex tasks such as code reviews                                        | gpt-3.5-turbo               |
+| openai_model_temperature | The temperature for the GPT model                                                              | 0                           |
+| openai_retries           | Number of times to retry OpenAI API in case of timeouts or errors                              | 5                           |
+| openai_timeout_ms        | Timeout for OpenAI API call in milliseconds                                                    | 360000                      |
+| openai_concurrency_limit | Maximum number of concurrent API calls to make to OpenAI servers                               | 4                           |
+| system_message           | System message to be sent to OpenAI.                                                           | -see in template            |
+| summarize                | The prompt for final summarization response.                                                   | -see in template            |
+| summarize_release_notes  | The prompt for generating release notes in the same chat as the summarize stage                | -see in template            |
