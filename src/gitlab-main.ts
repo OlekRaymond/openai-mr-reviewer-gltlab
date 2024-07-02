@@ -8,7 +8,7 @@ import {
 import {setMRBody} from './gitlab-adapter'
 import {ChatGptBot} from './chatgpt-bot'
 import { Bot } from './bot-common'
-import {OpenAIOptions, Options} from './options'
+import {LLMOptions, Options} from './options'
 import {Prompts} from './prompts'
 import {codeReview} from './review'
 // import {handleReviewComment} from './review-comment'
