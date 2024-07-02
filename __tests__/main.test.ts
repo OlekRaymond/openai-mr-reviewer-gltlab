@@ -11,7 +11,9 @@ test('test runs', () => {
     env: process.env
   }
 
-  options.env!["GITHUB_ACTION"] = ""
-  options.env!["GITHUB_TOKEN"] = ""
+  options.env!["GITHUB_ACTION"] = "MockValue"
+  options.env!["GITHUB_TOKEN"] = "MockValue"
+  options.env!["GITHUB_REPOSITORY"] = "mock_value/mock_value"
+  
   console.log(cp.execFileSync(np, [ip], options).toString())
 })
