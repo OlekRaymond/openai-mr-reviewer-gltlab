@@ -1,4 +1,4 @@
-import {info, setFailed, warning} from './gitlab-core'
+import {info, setFailed, warning} from './gitlab-core.js'
 import {
   ChatGPTAPI,
   ChatGPTError,
@@ -6,46 +6,57 @@ import {
   SendMessageOptions
   // eslint-disable-next-line import/no-unresolved
 } from 'chatgpt'
+
+// import {Ollama, Options as OllamaOptions} from 'ollama'
+
+import {Ids, Bot} from "./bot-common.js"
 import pRetry from 'p-retry'
-import {OpenAIOptions, Options} from './options'
+import {LLMOptions, Options} from './options.js'
 
-// define type to save parentMessageId and conversationId
-export interface Ids {
-  parentMessageId?: string
-  conversationId?: string
-}
 
-export class Bot {
-  private readonly api: ChatGPTAPI | null = null // not free
+export class ChatGptBot implements Bot {
+  private readonly api: ChatGPTAPI | null = null
 
   private readonly options: Options
 
-  constructor(options: Options, openaiOptions: OpenAIOptions) {
+  constructor(options: Options, llmOptions: LLMOptions) {
     this.options = options
-    if (process.env.OPENAI_API_KEY) {
-      const currentDate = new Date().toISOString().split('T')[0]
-      const systemMessage = `${options.systemMessage} 
-Knowledge cutoff: ${openaiOptions.tokenLimits.knowledgeCutOff}
+    
+    const currentDate = new Date().toISOString().split('T')[0]
+    const systemMessage = `${options.systemMessage} 
+Knowledge cutoff: ${llmOptions.tokenLimits.knowledgeCutOff}
 Current date: ${currentDate}`
 
-      this.api = new ChatGPTAPI({
-        apiBaseUrl: options.apiBaseUrl,
-        systemMessage,
-        apiKey: process.env.OPENAI_API_KEY,
-        apiOrg: process.env.OPENAI_API_ORG ?? undefined,
-        debug: options.debug,
-        maxModelTokens: openaiOptions.tokenLimits.maxTokens,
-        maxResponseTokens: openaiOptions.tokenLimits.responseTokens,
-        completionParams: {
-          temperature: options.openaiModelTemperature,
-          model: openaiOptions.model
-        }
-      })
-    } else {
-      const err =
-        "Unable to initialize the OpenAI API, both 'OPENAI_API_KEY' environment variable are not available"
-      throw new Error(err)
-    }
+// apiBaseUrl: options.apiBaseUrl,
+// systemMessage,
+// completionParams: {
+//   temperature: options.openaiModelTemperature,
+//   model: openaiOptions.model
+// }
+
+    // const a:OllamaOptions = {temperature:options.llmTemperature}
+    // this.api = new Ollama({host:options.apiBaseUrl})
+    // this.api.chat({model:llmOptions.model, messages:[{role:'system', content:systemMessage}] })
+    
+
+
+
+    this.api = new ChatGPTAPI({
+      apiBaseUrl: options.apiBaseUrl,
+      systemMessage,
+      apiKey: "",
+      apiOrg: process.env.OPENAI_API_ORG ?? undefined,
+      debug: options.debug,
+      maxModelTokens: llmOptions.tokenLimits.maxTokens,
+      maxResponseTokens: llmOptions.tokenLimits.responseTokens,
+      completionParams: {
+        temperature: options.llmTemperature,
+        model: llmOptions.model
+      }
+    })
+    
+    // chatgpt.sendMessage()
+
   }
 
   chat = async (message: string, ids: Ids): Promise<[string, Ids]> => {
@@ -75,14 +86,15 @@ Current date: ${currentDate}`
 
     if (this.api != null) {
       const opts: SendMessageOptions = {
-        timeoutMs: this.options.openaiTimeoutMS
+        timeoutMs: this.options.llmTimeoutMS
       }
+      // never occurs
       if (ids.parentMessageId) {
         opts.parentMessageId = ids.parentMessageId
       }
       try {
         response = await pRetry(() => this.api!.sendMessage(message, opts), {
-          retries: this.options.openaiRetries
+          retries: this.options.llmRetries
         })
       } catch (e: unknown) {
         if (e instanceof ChatGPTError) {
@@ -99,6 +111,7 @@ Current date: ${currentDate}`
         } ms`
       )
     } else {
+      // Never hit?
       setFailed('The OpenAI API is not initialized')
     }
     let responseText = ''

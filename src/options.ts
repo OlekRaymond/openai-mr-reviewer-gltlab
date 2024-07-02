@@ -11,12 +11,12 @@ export class Options {
   reviewCommentLGTM: boolean
   pathFilters: PathFilter
   systemMessage: string
-  openaiLightModel: string
-  openaiHeavyModel: string
-  openaiModelTemperature: number
-  openaiRetries: number
-  openaiTimeoutMS: number
-  openaiConcurrencyLimit: number
+  llmLightModel: string
+  llmHeavyModel: string
+  llmTemperature: number
+  llmRetries: number
+  llmTimeoutMS: number
+  llmConcurrencyLimit: number
   lightTokenLimits: TokenLimits
   heavyTokenLimits: TokenLimits
   apiBaseUrl: string
@@ -46,12 +46,12 @@ export class Options {
     this.reviewCommentLGTM = reviewCommentLGTM
     this.pathFilters = new PathFilter(pathFilters)
     this.systemMessage = systemMessage
-    this.openaiLightModel = openaiLightModel
-    this.openaiHeavyModel = openaiHeavyModel
-    this.openaiModelTemperature = parseFloat(openaiModelTemperature)
-    this.openaiRetries = parseInt(openaiRetries)
-    this.openaiTimeoutMS = parseInt(openaiTimeoutMS)
-    this.openaiConcurrencyLimit = parseInt(openaiConcurrencyLimit)
+    this.llmLightModel = openaiLightModel
+    this.llmHeavyModel = openaiHeavyModel
+    this.llmTemperature = parseFloat(openaiModelTemperature)
+    this.llmRetries = parseInt(openaiRetries)
+    this.llmTimeoutMS = parseInt(openaiTimeoutMS)
+    this.llmConcurrencyLimit = parseInt(openaiConcurrencyLimit)
     this.lightTokenLimits = new TokenLimits(openaiLightModel)
     this.heavyTokenLimits = new TokenLimits(openaiHeavyModel)
     this.apiBaseUrl = apiBaseUrl
@@ -67,12 +67,12 @@ export class Options {
     info(`review_comment_lgtm: ${this.reviewCommentLGTM}`)
     info(`path_filters: ${this.pathFilters}`)
     info(`system_message: ${this.systemMessage}`)
-    info(`openai_light_model: ${this.openaiLightModel}`)
-    info(`openai_heavy_model: ${this.openaiHeavyModel}`)
-    info(`openai_model_temperature: ${this.openaiModelTemperature}`)
-    info(`openai_retries: ${this.openaiRetries}`)
-    info(`openai_timeout_ms: ${this.openaiTimeoutMS}`)
-    info(`openai_concurrency_limit: ${this.openaiConcurrencyLimit}`)
+    info(`openai_light_model: ${this.llmLightModel}`)
+    info(`openai_heavy_model: ${this.llmHeavyModel}`)
+    info(`openai_model_temperature: ${this.llmTemperature}`)
+    info(`openai_retries: ${this.llmRetries}`)
+    info(`openai_timeout_ms: ${this.llmTimeoutMS}`)
+    info(`openai_concurrency_limit: ${this.llmConcurrencyLimit}`)
     info(`summary_token_limits: ${this.lightTokenLimits.string()}`)
     info(`review_token_limits: ${this.heavyTokenLimits.string()}`)
     info(`api_base_url: ${this.apiBaseUrl}`)
@@ -130,7 +130,7 @@ export class PathFilter {
   }
 }
 
-export class OpenAIOptions {
+export class LLMOptions {
   model: string
   tokenLimits: TokenLimits
 
