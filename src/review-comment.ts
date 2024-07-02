@@ -1,7 +1,8 @@
 import {info, warning} from '@actions/core'
 // eslint-disable-next-line camelcase
 import {context as github_context} from '@actions/github'
-import {type Bot} from './bot'
+// import {type ChatGptBot} from './chatgpt-bot'
+import { type Bot } from './bot-common'
 import {
   Commenter,
   COMMENT_REPLY_TAG,

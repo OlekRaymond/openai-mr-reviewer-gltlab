@@ -3,7 +3,7 @@ import {error, info, warning} from './gitlab-core'
 // eslint-disable-next-line camelcase
 import {context as github_context} from './gitlab-adapter'
 import pLimit from 'p-limit'
-import {type Bot} from './bot'
+// import {type ChatGptBot} from './chatgpt-bot'
 import {
   Commenter,
   COMMENT_REPLY_TAG,
@@ -33,7 +33,7 @@ export const codeReview = async (
 ): Promise<void> => {
   const commenter: Commenter = new Commenter()
 
-  const openaiConcurrencyLimit = pLimit(options.openaiConcurrencyLimit)
+  const openaiConcurrencyLimit = pLimit(options.llmConcurrencyLimit)
 
   if (
     context.eventName !== 'pull_request' &&

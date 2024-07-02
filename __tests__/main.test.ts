@@ -10,5 +10,10 @@ test('test runs', () => {
   const options: cp.ExecFileSyncOptions = {
     env: process.env
   }
+
+  options.env!["GITHUB_ACTION"] = "MockValue"
+  options.env!["GITHUB_TOKEN"] = "MockValue"
+  options.env!["GITHUB_REPOSITORY"] = "mock_value/mock_value"
+  
   console.log(cp.execFileSync(np, [ip], options).toString())
 })

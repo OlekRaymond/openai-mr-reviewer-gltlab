@@ -5,8 +5,8 @@ import {
   setFailed,
   warning
 } from '@actions/core'
-import {Bot} from './bot'
-import {OpenAIOptions, Options} from './options'
+import {ChatGptBot} from './chatgpt-bot'
+import {LLMOptions, Options} from './options'
 import {Prompts} from './prompts'
 import {codeReview} from './review'
 import {handleReviewComment} from './review-comment'
@@ -40,11 +40,11 @@ async function run(): Promise<void> {
 
   // Create two bots, one for summary and one for review
 
-  let lightBot: Bot | null = null
+  let lightBot: ChatGptBot | null = null
   try {
-    lightBot = new Bot(
+    lightBot = new ChatGptBot(
       options,
-      new OpenAIOptions(options.openaiLightModel, options.lightTokenLimits)
+      new LLMOptions(options.llmLightModel, options.lightTokenLimits)
     )
   } catch (e: any) {
     warning(
@@ -53,11 +53,11 @@ async function run(): Promise<void> {
     return
   }
 
-  let heavyBot: Bot | null = null
+  let heavyBot: ChatGptBot | null = null
   try {
-    heavyBot = new Bot(
+    heavyBot = new ChatGptBot(
       options,
-      new OpenAIOptions(options.openaiHeavyModel, options.heavyTokenLimits)
+      new LLMOptions(options.llmHeavyModel, options.heavyTokenLimits)
     )
   } catch (e: any) {
     warning(
