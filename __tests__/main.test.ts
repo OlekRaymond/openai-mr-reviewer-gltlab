@@ -10,5 +10,9 @@ test('test runs', () => {
   const options: cp.ExecFileSyncOptions = {
     env: process.env
   }
+
+  // TODO Mock this a little better
+  options.env["GITHUB_ACTION"] = ""
+  options.env["GITHUB_TOKEN"] = ""
   console.log(cp.execFileSync(np, [ip], options).toString())
 })

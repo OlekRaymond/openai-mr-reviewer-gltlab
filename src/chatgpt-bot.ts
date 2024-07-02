@@ -1,4 +1,4 @@
-import {info, setFailed, warning} from './gitlab-core.js'
+import {info, setFailed, warning} from './gitlab-core'
 import {
   ChatGPTAPI,
   ChatGPTError,
@@ -7,11 +7,9 @@ import {
   // eslint-disable-next-line import/no-unresolved
 } from 'chatgpt'
 
-// import {Ollama, Options as OllamaOptions} from 'ollama'
-
-import {Ids, Bot} from "./bot-common.js"
+import {Ids, Bot} from "./bot-common"
 import pRetry from 'p-retry'
-import {LLMOptions, Options} from './options.js'
+import {LLMOptions, Options} from './options'
 
 
 export class ChatGptBot implements Bot {
@@ -27,20 +25,6 @@ export class ChatGptBot implements Bot {
 Knowledge cutoff: ${llmOptions.tokenLimits.knowledgeCutOff}
 Current date: ${currentDate}`
 
-// apiBaseUrl: options.apiBaseUrl,
-// systemMessage,
-// completionParams: {
-//   temperature: options.openaiModelTemperature,
-//   model: openaiOptions.model
-// }
-
-    // const a:OllamaOptions = {temperature:options.llmTemperature}
-    // this.api = new Ollama({host:options.apiBaseUrl})
-    // this.api.chat({model:llmOptions.model, messages:[{role:'system', content:systemMessage}] })
-    
-
-
-
     this.api = new ChatGPTAPI({
       apiBaseUrl: options.apiBaseUrl,
       systemMessage,
@@ -54,8 +38,6 @@ Current date: ${currentDate}`
         model: llmOptions.model
       }
     })
-    
-    // chatgpt.sendMessage()
 
   }
 
