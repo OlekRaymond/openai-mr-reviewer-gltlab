@@ -15,5 +15,9 @@
     "noImplicitAny": true,
     "esModuleInterop": true
   },
+  "tsc-alias": {
+  "resolveFullPaths": true,
+  "verbose": false
+  },
   "exclude": ["dist", "lib", "node_modules", "**/*.test.ts"]
 }
